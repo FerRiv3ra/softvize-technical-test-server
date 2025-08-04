@@ -1,0 +1,28 @@
+export const EnvKeysEnum = Object.freeze({
+  NODE_ENV: 'NODE_ENV',
+  SERVER_HTTP_PORT: 'SERVER_HTTP_PORT',
+  SERVER_HTTP_HOST: 'SERVER_HTTP_HOST',
+  DB_URL: 'DB_URL',
+});
+
+export enum EnvironmentEnum {
+  local = 'local',
+  dev = 'dev',
+  prod = 'prod',
+}
+
+export const JwtEnums = Object.freeze({
+  JWT_ACCESS_SECRET: 'JWT_ACCESS_SECRET',
+  JWT_REFRESH_SECRET: 'JWT_REFRESH_SECRET',
+  JWT_TOKEN_AUDIENCE: 'JWT_TOKEN_AUDIENCE',
+  JWT_TOKEN_ISSUER: 'JWT_TOKEN_ISSUER',
+  JWT_ACCESS_TOKEN_TTL: 'JWT_ACCESS_TOKEN_TTL',
+  JWT_REFRESH_TOKEN_TTL: 'JWT_REFRESH_TOKEN_TTL',
+});
+
+export const SwaggerEnums = Object.freeze({
+  SWAGGER_API: 'SWAGGER_API',
+  SWAGGER_ALLOW: 'SWAGGER_ALLOW',
+  SWAGGER_USER_NAME: 'SWAGGER_USER_NAME',
+  SWAGGER_PASSWORD: 'SWAGGER_PASSWORD',
+});

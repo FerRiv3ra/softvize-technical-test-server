@@ -36,13 +36,13 @@ export class CreateUserDto {
    * Username for the user. Minimum 5 characters.
    */
   @ApiProperty({
-    example: 'john_doe',
+    example: 'John Doe',
     minLength: 5,
-    description: 'Username (min 5 characters)',
+    description: 'User name (min 5 characters)',
   })
   @IsString()
   @MinLength(5)
-  username: string;
+  name: string;
 }
 
 /**

@@ -34,9 +34,12 @@ export class UsersService {
     private readonly jwtConfiguration: ConfigType<typeof jwtConfig>,
   ) {}
 
-  async create(createUserDto: CreateUserDto): Promise<UserDocument> {
+  async create(
+    createUserDto: CreateUserDto,
+    avatar: string,
+  ): Promise<UserDocument> {
     try {
-      const user = await this.userModel.create(createUserDto);
+      const user = await this.userModel.create({ ...createUserDto, avatar });
 
       return user as UserDocument;
     } catch (error) {
@@ -114,9 +117,9 @@ export class UsersService {
   }
 
   async updateInfo(userId: string, updateUserDto: UpdateUserDto) {
-    const { username, email } = updateUserDto;
+    const { name, email } = updateUserDto;
 
-    if (!username && !email) {
+    if (!name && !email) {
       throw new BadRequestException('No fields to update provided');
     }
 

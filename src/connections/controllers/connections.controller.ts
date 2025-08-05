@@ -53,7 +53,7 @@ export class ConnectionsController {
   @ApiBearerAuth(swaggerAuth)
   @TokenType(TokenTypeEnum.AccessToken)
   async remove(@Param('id', ParseMongoIdPipe) id: string) {
-    const response = await this.connectionsService.remove(+id);
+    const response = await this.connectionsService.remove(id);
 
     return baseResponseHelper(response);
   }

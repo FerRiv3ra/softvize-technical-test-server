@@ -59,7 +59,10 @@ export class AuthService {
       throw new BadRequestException('Email already registered');
     }
 
-    const user = await this.userService.create(userDto);
+    const user = await this.userService.create(
+      userDto,
+      `https://i.pravatar.cc/150?img=${Math.floor(Math.random() * 70) + 1}`,
+    );
     const [accessToken, refreshToken] = await Promise.all([
       this.userService.createToken(user, TokenTypeEnum.AccessToken),
       this.userService.createToken(user, TokenTypeEnum.RefreshToken),

@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Injectable,
   InternalServerErrorException,
   Logger,
@@ -10,7 +11,7 @@ import { SoftDeleteModel } from 'mongoose-delete';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
 import { Page } from 'src/common/helpers/page-response.helper';
 import { CreateConnectionDto } from '../dto/create-connection.dto';
-import { Connection } from '../entities/connection.entity';
+import { Connection, ConnectionDocument } from '../entities/connection.entity';
 
 @Injectable()
 export class ConnectionsService {
@@ -33,6 +34,36 @@ export class ConnectionsService {
 
     if (connectedUser === userId) {
       throw new NotFoundException('Cannot connect to yourself');
+    }
+
+    const [existingConnection1, existingConnection2] = await Promise.all([
+      this.connectionModel.findOne<ConnectionDocument>({
+        user: userId,
+        connectedUser,
+      }),
+      this.connectionModel.findOne<ConnectionDocument>({
+        user: connectedUser,
+        connectedUser: userId,
+      }),
+    ]);
+
+    if (existingConnection1 && existingConnection2) {
+      if (existingConnection1.deleted && !existingConnection2.deleted) {
+        await Promise.all([
+          (this.connectionModel as SoftDeleteModel<Connection>).restore({
+            _id: existingConnection1._id,
+          }),
+          (this.connectionModel as SoftDeleteModel<Connection>).restore({
+            _id: existingConnection2._id,
+          }),
+        ]);
+
+        return existingConnection1;
+      } else {
+        throw new BadRequestException(
+          'Connection already exists between these users',
+        );
+      }
     }
 
     const connection1 = new this.connectionModel({
@@ -86,16 +117,31 @@ export class ConnectionsService {
     return 'All connections removed successfully';
   }
 
-  async remove(id: number) {
+  async remove(id: string) {
     const connection = await this.connectionModel.findById(id);
+
     if (!connection) {
       throw new NotFoundException('Connection not found or already deleted');
     }
 
+    const secondConnection = await this.connectionModel.findOne({
+      user: connection.connectedUser,
+      connectedUser: connection.user,
+    });
+
+    if (!secondConnection) {
+      throw new NotFoundException('Related connection not found');
+    }
+
     try {
-      await (this.connectionModel as SoftDeleteModel<Connection>).delete({
-        _id: id,
-      });
+      await Promise.all([
+        (this.connectionModel as SoftDeleteModel<Connection>).delete({
+          _id: connection._id,
+        }),
+        (this.connectionModel as SoftDeleteModel<Connection>).delete({
+          _id: secondConnection._id,
+        }),
+      ]);
 
       return id;
     } catch (error) {
